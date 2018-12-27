@@ -78,7 +78,7 @@ class RememberBest(object):
 
         """
         # Remove epochs past the best one from epochs dataframe
-        epochs_df.drop(range(self.best_epoch+1, len(epochs_df)), inplace=True)
+        #epochs_df.drop(range(self.best_epoch+1, len(epochs_df)), inplace=True)
         model.load_state_dict(self.model_state_dict)
         optimizer.load_state_dict(self.optimizer_state_dict)
 
@@ -258,7 +258,8 @@ class Experiment(object):
         datasets = self.datasets
         datasets['train'] = concatenate_sets([datasets['train'],
                                              datasets['valid']])
-
+        for g in self.optimizer.param_groups:
+            g['lr'] = g['lr'] * 0.25
         self.run_until_stop(datasets, remember_best=True)
 
     def run_until_stop(self, datasets, remember_best):
@@ -308,11 +309,11 @@ class Experiment(object):
             if len(inputs) > 0:
                 self.train_batch(inputs, targets)
         end_train_epoch_time = time.time()
-        log.info("Time only for training updates: {:.2f}s".format(
-            end_train_epoch_time - start_train_epoch_time))
+        #log.info("Time only for training updates: {:.2f}s".format(
+        #    end_train_epoch_time - start_train_epoch_time))
 
         self.monitor_epoch(datasets)
-        self.log_epoch()
+        #self.log_epoch()
         if remember_best:
             self.rememberer.remember_epoch(self.epochs_df, self.model,
                                            self.optimizer)
@@ -443,4 +444,4 @@ class Experiment(object):
         self.stop_criterion = Or(stop_criteria=[
             MaxEpochs(max_epochs=self.rememberer.best_epoch * 2),
             ColumnBelow(column_name='valid_loss', target_value=loss_to_reach)])
-        log.info("Train loss to reach {:.5f}".format(loss_to_reach))
+        #log.info("Train loss to reach {:.5f}".format(loss_to_reach))
