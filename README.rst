@@ -1,3 +1,7 @@
+## modified convienent package for my paper
+
+## below are the READMEs from the original repository
+
 Note: The old braindecode repository has been moved to
 https://github.com/robintibor/braindevel.
 
