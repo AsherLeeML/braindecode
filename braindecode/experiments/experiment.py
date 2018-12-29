@@ -156,6 +156,7 @@ class Experiment(object):
                  iterator, loss_function, optimizer, model_constraint,
                  monitors, stop_criterion, remember_best_column,
                  run_after_early_stop,
+                 
                  model_loss_function=None,
                  batch_modifier=None, cuda=True, pin_memory=False,
                  do_early_stop=True,
@@ -445,3 +446,4 @@ class Experiment(object):
             MaxEpochs(max_epochs=self.rememberer.best_epoch * 2),
             ColumnBelow(column_name='valid_loss', target_value=loss_to_reach)])
         #log.info("Train loss to reach {:.5f}".format(loss_to_reach))
+    def transfer_finetuning(self):
