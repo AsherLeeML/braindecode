@@ -156,7 +156,6 @@ class Experiment(object):
                  iterator, loss_function, optimizer, model_constraint,
                  monitors, stop_criterion, remember_best_column,
                  run_after_early_stop,
-                 
                  model_loss_function=None,
                  batch_modifier=None, cuda=True, pin_memory=False,
                  do_early_stop=True,
