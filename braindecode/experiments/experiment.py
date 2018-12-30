@@ -446,3 +446,4 @@ class Experiment(object):
             ColumnBelow(column_name='valid_loss', target_value=loss_to_reach)])
         #log.info("Train loss to reach {:.5f}".format(loss_to_reach))
     def transfer_finetuning(self):
+        pass

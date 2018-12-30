@@ -136,8 +136,8 @@ def lowpass_cnt(data, high_cut_hz, fs, filt_order=3, axis=0):
         Data after applying lowpass filter.
     """
     if (high_cut_hz is None) or (high_cut_hz ==  fs / 2.0):
-        log.info(
-            "Not doing any lowpass, since high cut hz is None or nyquist freq.")
+        #log.info(
+        #    "Not doing any lowpass, since high cut hz is None or nyquist freq.")
         return data.copy()
     b, a = scipy.signal.butter(filt_order, high_cut_hz / (fs / 2.0),
                                btype='lowpass')
@@ -169,15 +169,15 @@ def bandpass_cnt(data, low_cut_hz, high_cut_hz, fs, filt_order=3, axis=0,
     """
     if (low_cut_hz == 0 or low_cut_hz is None) and (
                     high_cut_hz == None or high_cut_hz == fs / 2.0):
-        log.info("Not doing any bandpass, since low 0 or None and "
-                 "high None or nyquist frequency")
+        #log.info("Not doing any bandpass, since low 0 or None and "
+        #         "high None or nyquist frequency")
         return data.copy()
     if low_cut_hz == 0 or low_cut_hz == None:
-        log.info("Using lowpass filter since low cut hz is 0 or None")
+        #log.info("Using lowpass filter since low cut hz is 0 or None")
         return lowpass_cnt(data, high_cut_hz, fs, filt_order=filt_order, axis=axis)
     if high_cut_hz == None or high_cut_hz == (fs / 2.0):
-        log.info(
-            "Using highpass filter since high cut hz is None or nyquist freq")
+        #log.info(
+        #    "Using highpass filter since high cut hz is None or nyquist freq")
         return highpass_cnt(data, low_cut_hz, fs, filt_order=filt_order, axis=axis)
 
     nyq_freq = 0.5 * fs
