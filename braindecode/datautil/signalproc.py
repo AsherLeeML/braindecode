@@ -109,7 +109,7 @@ def highpass_cnt(data, low_cut_hz, fs, filt_order=3, axis=0):
         Data after applying highpass filter.
     """
     if (low_cut_hz is None) or (low_cut_hz == 0):
-        log.info("Not doing any highpass, since low 0 or None")
+        #log.info("Not doing any highpass, since low 0 or None")
         return data.copy()
     b, a = scipy.signal.butter(filt_order, low_cut_hz / (fs / 2.0),
                                btype='highpass')
