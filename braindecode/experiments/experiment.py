@@ -309,8 +309,8 @@ class Experiment(object):
             if len(inputs) > 0:
                 self.train_batch(inputs, targets)
         end_train_epoch_time = time.time()
-        #log.info("Time only for training updates: {:.2f}s".format(
-        #    end_train_epoch_time - start_train_epoch_time))
+        log.info("Time only for training updates: {:.2f}s".format(
+            end_train_epoch_time - start_train_epoch_time))
 
         self.monitor_epoch(datasets)
         #self.log_epoch()

@@ -62,16 +62,23 @@ class EEGNetv4(BaseModel):
         # b c 0 1
         # now to b 1 0 c
         model.add_module('dimshuffle', Expression(_transpose_to_b_1_c_0))
+        # [None, 1, C, T]
+        # [1, 1, 26, 1125]
 
         model.add_module('conv_temporal', nn.Conv2d(
             1, self.F1, (1, self.kernel_length), stride=1, bias=False,
             padding=(0, self.kernel_length // 2,)))
         model.add_module('bnorm_temporal', nn.BatchNorm2d(
             self.F1, momentum=0.01, affine=True, eps=1e-3), )
+        # [None, F1, C, T]
+        # [1, 8, 26, 1126]
+
         model.add_module('conv_spatial', Conv2dWithConstraint(
             self.F1, self.F1 * self.D, (self.in_chans, 1), max_norm=1, stride=1, bias=False,
             groups=self.F1,
             padding=(0, 0)))
+        # [None, F1*D, 1, T]
+        # [1, 16, 1, 1126]
 
         model.add_module('bnorm_1', nn.BatchNorm2d(
             self.F1 * self.D, momentum=0.01, affine=True, eps=1e-3), )
@@ -79,15 +86,21 @@ class EEGNetv4(BaseModel):
 
         model.add_module('pool_1', pool_class(
             kernel_size=(1, 4), stride=(1, 4)))
+        # [None, F1*D, 1, T//4]
+        # [1, 16, 1, 281]
+        
         model.add_module('drop_1', nn.Dropout(p=self.drop_prob))
 
         # https://discuss.pytorch.org/t/how-to-modify-a-conv2d-to-depthwise-separable-convolution/15843/7
         model.add_module('conv_separable_depth', nn.Conv2d(
             self.F1 * self.D, self.F1 * self.D, (1, 16), stride=1, bias=False, groups=self.F1 * self.D,
             padding=(0, 16 // 2)))
+
         model.add_module('conv_separable_point', nn.Conv2d(
             self.F1 * self.D, self.F2, (1, 1), stride=1, bias=False,
             padding=(0, 0)))
+        # [None, F2, 1, T//4]
+        # [1, 16, 1, 282]
 
         model.add_module('bnorm_2', nn.BatchNorm2d(
             self.F2, momentum=0.01, affine=True, eps=1e-3), )
@@ -95,23 +108,30 @@ class EEGNetv4(BaseModel):
         model.add_module('pool_2', pool_class(
             kernel_size=(1, 8), stride=(1, 8)))
         model.add_module('drop_2', nn.Dropout(p=self.drop_prob))
+        # [None, F2, 1, T//32]
+        # [1, 16, 1, 35]
+
 
         out = model(np_to_var(np.ones(
             (1, self.in_chans, self.input_time_length, 1),
             dtype=np.float32)))
         n_out_virtual_chans = out.cpu().data.numpy().shape[2]
-
+        # n_out_virtual_chans = 1
         if self.final_conv_length == 'auto':
             n_out_time = out.cpu().data.numpy().shape[3]
             self.final_conv_length = n_out_time
-
+        # self.final_conv_length = T//32
         model.add_module('conv_classifier', nn.Conv2d(
             self.F2, self.n_classes,
             (n_out_virtual_chans, self.final_conv_length,), bias=True))
+        # [1, 4, 1, 1]
+
+
         model.add_module('softmax', nn.LogSoftmax())
         # Transpose back to the the logic of braindecode,
         # so time in third dimension (axis=2)
         model.add_module('permute_back', Expression(_transpose_1_0))
+        # [1, 4]
         model.add_module('squeeze', Expression(_squeeze_final_output))
 
         glorot_weight_zero_bias(model)
