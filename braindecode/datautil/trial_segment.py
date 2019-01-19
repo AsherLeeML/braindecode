@@ -142,7 +142,7 @@ def _create_signal_target_from_start_and_ival(
         data.shape[1], events, fs, name_to_codes, epoch_ival_ms
     )
     signal_target = _create_signal_target_from_cnt_y_start_stops(
-        data, cnt_y, i_start_stops, prepad_trials_to_n_samples=None,
+        data, cnt_y, i_start_stops, fs=fs, prepad_trials_to_n_samples=None,
         one_hot_labels=one_hot_labels,
         one_label_per_trial=one_label_per_trial)
     # make into arrray as all should have same dimensions
@@ -195,7 +195,7 @@ def _create_signal_target_from_start_and_stop(
         data.shape[1],events, fs,name_to_start_codes, epoch_ival_ms,
         name_to_stop_codes)
     signal_target = _create_signal_target_from_cnt_y_start_stops(
-        data, cnt_y, i_start_stops,
+        data, cnt_y, i_start_stops, fs=fs, 
         prepad_trials_to_n_samples=prepad_trials_to_n_samples,
         one_hot_labels=one_hot_labels, one_label_per_trial=one_label_per_trial)
     return signal_target
@@ -317,6 +317,7 @@ def _create_signal_target_from_cnt_y_start_stops(
         data,
         cnt_y,
         i_start_stops,
+        fs,
         prepad_trials_to_n_samples,
         one_hot_labels,
         one_label_per_trial):
@@ -405,7 +406,7 @@ def _create_signal_target_from_cnt_y_start_stops(
     if one_label_per_trial:
         y = np.array(y, dtype=np.int64)
 
-    return SignalAndTarget(X, y)
+    return SignalAndTarget(X, y, fs=fs)
 
 
 def create_signal_target_with_breaks_from_mne(
