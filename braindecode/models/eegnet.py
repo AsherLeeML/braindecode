@@ -83,13 +83,12 @@ class EEGNetv4(BaseModel):
         model.add_module('bnorm_1', nn.BatchNorm2d(
             self.F1 * self.D, momentum=0.01, affine=True, eps=1e-3), )
         model.add_module('elu_1', Expression(elu))
-
         model.add_module('pool_1', pool_class(
             kernel_size=(1, 4), stride=(1, 4)))
+        model.add_module('drop_1', nn.Dropout(p=self.drop_prob))
         # [None, F1*D, 1, T//4]
         # [1, 16, 1, 281]
         
-        model.add_module('drop_1', nn.Dropout(p=self.drop_prob))
 
         # https://discuss.pytorch.org/t/how-to-modify-a-conv2d-to-depthwise-separable-convolution/15843/7
         model.add_module('conv_separable_depth', nn.Conv2d(
