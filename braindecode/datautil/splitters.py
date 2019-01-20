@@ -34,9 +34,10 @@ def concatenate_two_sets(set_a, set_b):
     -------
     concatenated_set: :class:`.SignalAndTarget`
     """
+    assert set_a.fs == set_b.fs
     new_X = concatenate_np_array_or_add_lists(set_a.X, set_b.X)
     new_y = concatenate_np_array_or_add_lists(set_a.y, set_b.y)
-    return SignalAndTarget(new_X, new_y)
+    return SignalAndTarget(new_X, new_y, set_a.fs)
 
 def concatenate_np_array_or_add_lists(a, b):
     if hasattr(a, 'ndim') and hasattr(b, 'ndim'):
@@ -103,7 +104,7 @@ def select_examples(dataset, indices):
         # list
         new_X = [dataset.X[i] for i in indices]
     new_y = np.asarray(dataset.y)[indices]
-    return SignalAndTarget(new_X, new_y)
+    return SignalAndTarget(new_X, new_y, dataset.fs)
 
 
 def split_into_train_valid_test(dataset, n_folds, i_test_fold, rng=None):

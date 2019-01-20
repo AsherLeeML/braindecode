@@ -172,7 +172,7 @@ class BaseModel(object):
             stop_criterion = MaxEpochs(epochs)
         else:
             stop_criterion = MaxEpochs(epochs - 1)
-        train_set = SignalAndTarget(train_X, train_y)
+        train_set = SignalAndTarget(train_X, train_y, )
         optimizer = self.optimizer
         if scheduler is not None:
             assert scheduler == 'cosine', (
