@@ -406,7 +406,7 @@ def _create_signal_target_from_cnt_y_start_stops(
     if one_label_per_trial:
         y = np.array(y, dtype=np.int64)
 
-    return SignalAndTarget(X, y, fs=fs)
+    return SignalAndTarget(X, y, fs)
 
 
 def create_signal_target_with_breaks_from_mne(

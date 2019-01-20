@@ -9,10 +9,11 @@ class SignalAndTarget(object):
     y: 1darray or list
         Labels for each trial.
     """
-    def __init__(self, X, y):
+    def __init__(self, X, y, fs):
         assert len(X) == len(y)
         self.X = X
         self.y = y
+        self.fs = fs
 
 
 def apply_to_X_y(fn, *sets):
