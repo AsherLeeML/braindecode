@@ -61,34 +61,25 @@ class Deep4Net(BaseModel):
             pool_stride = 1
         else:
             conv_stride = 1
-            pool_stride = self.pool_time_stride
+            pool_stride = self.pool_time_stride #3
         pool_class_dict = dict(max=nn.MaxPool2d, mean=AvgPool2dWithConv)
         first_pool_class = pool_class_dict[self.first_pool_mode]
         later_pool_class = pool_class_dict[self.later_pool_mode]
         model = nn.Sequential()
-        if self.split_first_layer:
-            model.add_module('dimshuffle', Expression(_transpose_time_to_spat))
-            model.add_module('conv_time', nn.Conv2d(1, self.n_filters_time,
-                                                    (
-                                                    self.filter_time_length, 1),
-                                                    stride=1, ))
-            # [1, nFT, T', C]
-            model.add_module('conv_spat',
-                             nn.Conv2d(self.n_filters_time, self.n_filters_spat,
-                                       (1, self.in_chans),
-                                       stride=(conv_stride, 1),
-                                       bias=not self.batch_norm))
-            n_filters_conv = self.n_filters_spat
+        model.add_module('dimshuffle', Expression(_transpose_time_to_spat))
+        model.add_module('conv_time', nn.Conv2d(1, self.n_filters_time,
+                                                (
+                                                self.filter_time_length, 1), #10
+                                                stride=1, ))
+        # [1, nFT, T', C]
+        model.add_module('conv_spat',
+                            nn.Conv2d(self.n_filters_time, self.n_filters_spat,
+                                    (1, self.in_chans),
+                                    stride=(conv_stride, 1),
+                                    bias=not self.batch_norm))
+        n_filters_conv = self.n_filters_spat
             # [1, NFS, T, 1]
-        else:
-            model.add_module('conv_time',
-                             nn.Conv2d(self.in_chans, self.n_filters_time,
-                                       (self.filter_time_length, 1),
-                                       stride=(conv_stride, 1),
-                                       bias=not self.batch_norm))
-            n_filters_conv = self.n_filters_time
-        if self.batch_norm:
-            model.add_module('bnorm',
+        model.add_module('bnorm',
                              nn.BatchNorm2d(n_filters_conv,
                                             momentum=self.batch_norm_alpha,
                                             affine=True,
@@ -96,8 +87,8 @@ class Deep4Net(BaseModel):
         model.add_module('conv_nonlin', Expression(self.first_nonlin))
         model.add_module('pool',
                          first_pool_class(
-                             kernel_size=(self.pool_time_length, 1),
-                             stride=(pool_stride, 1)))
+                             kernel_size=(self.pool_time_length, 1), # Max 
+                             stride=(pool_stride, 1))) # 3, 3
         model.add_module('pool_nonlin', Expression(self.first_pool_nonlin))
         # [1, NFS, T, 1]
         def add_conv_pool_block(model, n_filters_before,
@@ -120,18 +111,18 @@ class Deep4Net(BaseModel):
                              Expression(self.later_nonlin))
 
             model.add_module('pool' + suffix,
-                             later_pool_class(
-                                 kernel_size=(self.pool_time_length, 1),
-                                 stride=(pool_stride, 1)))
+                             later_pool_class( #Max
+                                 kernel_size=(self.pool_time_length, 1), #3
+                                 stride=(pool_stride, 1)))               #3
             model.add_module('pool_nonlin' + suffix,
                              Expression(self.later_pool_nonlin))
 
         add_conv_pool_block(model, n_filters_conv, self.n_filters_2,
-                            self.filter_length_2, 2)
+                            self.filter_length_2, 2) #10
         add_conv_pool_block(model, self.n_filters_2, self.n_filters_3,
-                            self.filter_length_3, 3)
+                            self.filter_length_3, 3) #10
         add_conv_pool_block(model, self.n_filters_3, self.n_filters_4,
-                            self.filter_length_4, 4)
+                            self.filter_length_4, 4) #10
 
 
         model.eval()
