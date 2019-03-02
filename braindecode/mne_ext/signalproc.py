@@ -62,10 +62,13 @@ def resample_cnt(cnt, new_fs):
     old_fs = cnt.info['sfreq']
     new_info = deepcopy(cnt.info)
     new_info['sfreq'] = new_fs
-    events = new_info['events']
-    event_samples_old = cnt.info['events'][:, 0]
-    event_samples = event_samples_old * new_fs / float(old_fs)
-    events[:, 0] = event_samples
+    try:
+        events = new_info['events']
+        event_samples_old = cnt.info['events'][:, 0]
+        event_samples = event_samples_old * new_fs / float(old_fs)
+        events[:, 0] = event_samples
+    except:
+        pass
     return mne.io.RawArray(new_data, new_info)
 
 
