@@ -259,10 +259,10 @@ class Experiment(object):
         datasets['train'] = concatenate_sets([datasets['train'],
                                              datasets['valid']])
         for g in self.optimizer.param_groups:
-            g['lr'] = g['lr'] * 0.25
-        self.run_until_stop(datasets, remember_best=True)
+            g['lr'] = g['lr'] * 0.5
+        self.run_until_stop(datasets, remember_best=True, second_run=True)
 
-    def run_until_stop(self, datasets, remember_best):
+    def run_until_stop(self, datasets, remember_best, second_run=False):
         """
         Run training and evaluation on given datasets until stop criterion is
         fulfilled.
@@ -442,8 +442,6 @@ class Experiment(object):
                                             self.optimizer)
         loss_to_reach = float(self.epochs_df['train_loss'].iloc[-1])
         self.stop_criterion = Or(stop_criteria=[
-            MaxEpochs(max_epochs=self.rememberer.best_epoch * 2),
+            MaxEpochs(max_epochs=int(self.rememberer.best_epoch * 1.5)),
             ColumnBelow(column_name='valid_loss', target_value=loss_to_reach)])
         #log.info("Train loss to reach {:.5f}".format(loss_to_reach))
-    def transfer_finetuning(self):
-        pass
