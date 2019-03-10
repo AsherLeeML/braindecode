@@ -1,4 +1,6 @@
 import random
+import numpy as np
+
 class SignalAndTarget(object):
     """
     Simple data container class.
@@ -16,25 +18,37 @@ class SignalAndTarget(object):
         self.y = y
         self.fs = fs
     
-    def get_subset(self, sample_nb, mode='pre'):
+    def get_subset(self, train_sample_nb, mode='pre', ret3=False):
         if mode == 'pre':
             X = self.X[:sample_nb]
             y = self.y[:sample_nb]
             fs = self.fs
-            return SignalAndTarget(X, y, fs)
+
         if mode == 'post':
             X = self.X[-sample_nb:]
             y = self.y[-sample_nb:]
             fs = self.fs
-            return SignalAndTarget(X, y, fs)
         if mode == 'rand':
-            idices = list(range(self.X.shape[0]))
-            random.shuffle(idices)
-            idices = idices[:sample_nb]
+            idx_list = list(range(self.X.shape[0]))
+            random.shuffle(idx_list)
+            idices = idx_list[:sample_nb]
             X = self.X[idices]
             y = self.y[idices]
             fs = self.fs
-            return SignalAndTarget(X, y, fs)
+            if ret3:
+                train_X = X
+                train_y = y
+                div1 = len(idx_list)*0.4
+                div2 = len(idx_list)*0.2
+                valid_X = self.X[-div1:-div2]
+                valid_y = self.y[-div1:-div2]
+                test_X = self.X[-div2:]
+                test_y = self.y[-div2:]
+                return (SignalAndTarget(train_X, train_y, fs),
+                        SignalAndTarget(valid_X, valid_y, fs),
+                        SignalAndTarget(test_X, test_y, fs))
+            else:
+                return SignalAndTarget(X, y, fs)
 
 
 def apply_to_X_y(fn, *sets):
@@ -58,3 +72,38 @@ def apply_to_X_y(fn, *sets):
     X = fn(*[s.X for s in sets])
     y = fn(*[s.y for s in sets])
     return SignalAndTarget(X,y)
+
+def get_balanced_sets_splitter(dataset, valid_size=None, mode='post'):
+    """
+
+    the input dataset should be a S&T object.
+    
+    """
+    X, y, fs = dataset.X, dataset.y, dataset.fs
+    n_samples = y.shape[0]
+    nl = np.unique(y)
+    n_classes = nl.shape[0]
+    if type(valid_size) == float:
+        valid_size_per_class = int(valid_size*n_samples)//n_classes
+    else:
+        valid_size_per_class = valid_size // n_classes
+    idx = [np.where(y==l)[0] for l in nl]
+    if mode=='post':
+        T_idx = [i[:-valid_size_per_class] for i in idx]
+        V_idx = [i[-valid_size_per_class:] for i in idx]
+    elif mode=='pre':
+        T_idx = [i[valid_size_per_class: ] for i in idx]
+        V_idx = [i[ :valid_size_per_class] for i in idx]
+    elif mode=='rand':
+        for i in idx:
+            np.random.shuffle(i)
+        T_idx = [i[valid_size_per_class: ] for i in idx]
+        V_idx = [i[ :valid_size_per_class] for i in idx]
+
+    T_idx = np.concatenate(T_idx)
+    V_idx = np.concatenate(V_idx)
+    train_X, valid_X = X[T_idx], X[V_idx]
+    train_y, valid_y = y[T_idx], y[V_idx]
+    train_set = SignalAndTarget(train_X, y=train_y, fs=fs)
+    valid_set = SignalAndTarget(valid_X, y=valid_y, fs=fs)
+    return train_set, valid_set
