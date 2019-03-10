@@ -28,7 +28,7 @@ class SignalAndTarget(object):
             fs = self.fs
             return SignalAndTarget(X, y, fs)
         if mode == 'rand':
-            idices = self.X.shape[0]
+            idices = range(self.X.shape[0])
             random.shuffle(idices)
             idices = idices[:sample_nb]
             X = self.X[idices]
