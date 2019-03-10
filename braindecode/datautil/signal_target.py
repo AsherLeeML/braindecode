@@ -38,8 +38,8 @@ class SignalAndTarget(object):
             if ret3:
                 train_X = X
                 train_y = y
-                div1 = len(idx_list)*0.4
-                div2 = len(idx_list)*0.2
+                div1 = int(len(idx_list)*0.4)
+                div2 = int(len(idx_list)*0.2)
                 valid_X = self.X[-div1:-div2]
                 valid_y = self.y[-div1:-div2]
                 test_X = self.X[-div2:]
