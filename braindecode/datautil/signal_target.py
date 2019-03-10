@@ -20,18 +20,18 @@ class SignalAndTarget(object):
     
     def get_subset(self, train_sample_nb, mode='pre', ret3=False):
         if mode == 'pre':
-            X = self.X[:sample_nb]
-            y = self.y[:sample_nb]
+            X = self.X[:train_sample_nb]
+            y = self.y[:train_sample_nb]
             fs = self.fs
 
         if mode == 'post':
-            X = self.X[-sample_nb:]
-            y = self.y[-sample_nb:]
+            X = self.X[-train_sample_nb:]
+            y = self.y[-train_sample_nb:]
             fs = self.fs
         if mode == 'rand':
             idx_list = list(range(self.X.shape[0]))
             random.shuffle(idx_list)
-            idices = idx_list[:sample_nb]
+            idices = idx_list[:train_sample_nb]
             X = self.X[idices]
             y = self.y[idices]
             fs = self.fs
