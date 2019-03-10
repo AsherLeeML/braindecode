@@ -1,3 +1,4 @@
+import random
 class SignalAndTarget(object):
     """
     Simple data container class.
@@ -14,6 +15,26 @@ class SignalAndTarget(object):
         self.X = X
         self.y = y
         self.fs = fs
+    
+    def get_subset(self, sample_nb, mode='pre'):
+        if mode == 'pre':
+            X = self.X[:sample_nb]
+            y = self.y[:sample_nb]
+            fs = self.fs
+            return SignalAndTarget(X, y, fs)
+        if mode == 'post':
+            X = self.X[-sample_nb:]
+            y = self.y[-sample_nb:]
+            fs = self.fs
+            return SignalAndTarget(X, y, fs)
+        if mode == 'rand':
+            idices = self.X.shape[0]
+            random.shuffle(idices)
+            idices = idices[:sample_nb]
+            X = self.X[idices]
+            y = self.y[idices]
+            fs = self.fs
+            return SignalAndTarget(X, y, fs)
 
 
 def apply_to_X_y(fn, *sets):
