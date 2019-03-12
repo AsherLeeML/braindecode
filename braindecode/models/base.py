@@ -54,9 +54,12 @@ class BaseModel(object):
         self._ensure_network_exists()
         return self.network.parameters()
 
-    def _ensure_network_exists(self):
+    def _ensure_network_exists(self, samplerate=None):
         if not hasattr(self, 'network'):
-            self.network = self.create_network()
+            if samplerate is not None:
+                self.network = self.create_network(samplerate)
+            else:
+                self.network = self.create_network()
             self.cuda = False
             self.compiled = False
 
