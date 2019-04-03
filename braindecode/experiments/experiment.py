@@ -442,6 +442,6 @@ class Experiment(object):
                                             self.optimizer)
         loss_to_reach = float(self.epochs_df['train_loss'].iloc[-1])
         self.stop_criterion = Or(stop_criteria=[
-            MaxEpochs(max_epochs=int(self.rememberer.best_epoch * 1.5)),
+            MaxEpochs(max_epochs=int(self.rememberer.best_epoch * 1.2)),
             ColumnBelow(column_name='valid_loss', target_value=loss_to_reach)])
         #log.info("Train loss to reach {:.5f}".format(loss_to_reach))
